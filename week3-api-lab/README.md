@@ -14,25 +14,26 @@ The API of server.js have a main tree endpoint:
         }
 
 2. /api/login/ - here it let user to login and return JWT tokens
-    example: to login un and pass also needed to get the tokens
+example: to login un and pass also needed to get the tokens
 
         {
             "username": "lyla",
             "password": "password123"
         }
 
-        this how the reponse will look like
+this how the reponse will look like
         {
              "token": "your-jwt-token"
         }
 
 3. /api/protected/ - if the user has a valid JWT token it allow the access
-    example: to access this route you need to add the JWT token in the header
+example: to access this route you need to add the JWT token in the header
     
         key: Authorization
         value: Bearer your-jwt-token
 
-    example response if the token given is valid 
+example response if the token given is valid 
+        
         {
             "message": "Protected content",
             "user": {
@@ -42,7 +43,7 @@ The API of server.js have a main tree endpoint:
             }
         }
 
-    and access denied if its invalid
+and access denied if its invalid
 
 
 
