@@ -6,7 +6,7 @@ This provides the user authentications using JSON Web Token(JWT) by that it allo
 
 The API of server.js have a main tree endpoint:
 1. /api/register/ - register a new user
-    example: on this part the username and password to register
+example: on this part the username and password to register
 
         {
             "username": "lyla",
