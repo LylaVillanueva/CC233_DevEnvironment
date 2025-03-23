@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase CRUD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            margin: 40px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .add-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .update-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 50%;
+            margin: auto;
+        }
+
+        li {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info {
+            font-size: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Firebase CRUD App</h2>
+    
+    <input type="text" id="name" placeholder="Enter Name">
+    <input type="email" id="email" placeholder="Enter Email">
+    <button class="add-btn" onclick="addUser()">Add User</button>
+
+    <h3>Users:</h3>
+    <ul id="userList"></ul>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // Firebase Configuration (Replace with your actual config)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBvERORF7rh3zzvf81ij58WslqdTTjdRs",
+            authDomain: "mycrudapp-18f21.firebaseapp.com",
+            projectId: "mycrudapp-18f21",
+            storageBucket: "mycrudapp-18f21.firebasestorage.app",
+            messagingSenderId: "692860116136",
+            appId: "1:692860116136:web:a72de274f001ff9658b69d"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function addUser() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+
+            if (!name || !email) {
+                alert("Please enter both name and email.");
+                return;
+            }
+
+            await addDoc(collection(db, "users"), { name, email });
+            alert("User added successfully!");
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
+            fetchUsers();
+        }
+
+        // Attach function to global window object
+        window.addUser = addUser;
+
+        async function fetchUsers() {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            const userList = document.getElementById("userList");
+            userList.innerHTML = "";
+
+            querySnapshot.forEach((docSnap) => {
+                const userData = docSnap.data();
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span class="user-info">${userData.name} (${userData.email})</span>
+                    <div class="btn-group">
+                        <button class="update-btn" onclick="updateUser('${docSnap.id}')">Update</button>
+                        <button class="delete-btn" onclick="deleteUser('${docSnap.id}')">Delete</button>
+                    </div>
+                `;
+                userList.appendChild(li);
+            });
+        }
+
+        // Attach function to global window object
+        window.fetchUsers = fetchUsers;
+
+        async function updateUser(userId) {
+            const newName = prompt("Enter new name:");
+            if (newName) {
+                await updateDoc(doc(db, "users", userId), { name: newName });
+                alert("User updated successfully!");
+                fetchUsers();
+            }
+        }
+
+        // Attach function to global window object
+        window.updateUser = updateUser;
+
+        async function deleteUser(userId) {
+            await deleteDoc(doc(db, "users", userId));
+            alert("User deleted successfully!");
+            fetchUsers();
+        }
+
+        // Attach function to global window object
+        window.deleteUser = deleteUser;
+
+        // Fetch users on page load
+        document.addEventListener("DOMContentLoaded", fetchUsers);
+    </script>
+</body>
+</html>
