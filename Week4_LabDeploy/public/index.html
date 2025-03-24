@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth & Firestore</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Title & Subtitle */
+        #title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Boxed Sections */
+        div {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 350px;
+        }
+
+        /* Headings */
+        h3 {
+            font-size: 18px;
+            color: #060606;
+            margin-bottom: 10px;
+        }
+
+        /* Input Fields */
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        /* User Information Box */
+        #information-section {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Heading */
+        #information-section h3 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 15px;
+        }
+
+        /* Labels (Name, Email) */
+        #information-section p strong {
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* User Data */
+        #information-section p {
+            font-size: 15px;
+            color: #666;
+            margin: 5px 0;
+        }
+        #register-btn{
+            background-color: #28a745;
+        }
+        #register-btn:hover{
+            background-color: #258a3d;
+        }
+
+        #login-btn{
+            background-color: #007bff;
+        }
+        #login-btn:hover{
+            background-color: #224264;
+        }
+        
+        /* Logout Button */
+        #logout-btn {
+            background-color: #dc3545;
+        }
+
+        #logout-btn:hover {
+            background-color: #a71d2a;
+        }
+
+        /* Hide Information Section by Default */
+        #information-section {
+            display: none;
+        }
+
+        /* User Information Box */
+        #information-section {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #000; /* Thin black border */
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading */
+        #information-section h3 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        /* Input Fields */
+        #information-section input {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* Input Focus Effect */
+        #information-section input:focus {
+            outline: none;
+            border: 2px solid #7d38ff; /* Purple outline like in the image */
+        }
+
+        /* Logout Button */
+        #logout-btn {
+            background-color: #d9534f; /* Red color */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            width: 90%;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <h2 id = "title">Week4 Laboratory Exercise</h2>
+    <p>Firebase Web Application Deployment.</p>
+
+    <!-- Registration Box -->
+    <div id="registration-section">
+        <h3>Register</h3>
+        <input type="text" id="reg-name" placeholder="Name">
+        <input type="email" id="reg-email" placeholder="Email">
+        <input type="password" id="reg-password" placeholder="Password">
+        <button id="register-btn">REGISTER</button>
+    </div>
+
+    <!-- Login Box -->
+    <div id="login-section">
+        <h3>Login</h3>
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button id="login-btn">LOG-IN</button>
+    </div>
+
+    <!-- Information Display (Hidden Initially) -->
+    <div id="information-section" style="display: none;">
+        <h3>User Information</h3>
+        <p><strong>Name:</strong> <span id="user-name"></span></p>
+        <p><strong>Email:</strong> <span id="user-email"></span></p>
+    </div>
+
+    <!-- Logout Button (Hidden Initially) -->
+    <div id="logout-section" style="display: none;">
+
+        <button id="logout-btn">LOG OUT</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
+        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs } 
+        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+        apiKey: "AIzaSyBaxu3sPcm55UjRX9nLo-IfwWGtKAwAlUM",
+        authDomain: "mywebapp-78cbf.firebaseapp.com",
+        projectId: "mywebapp-78cbf",
+        storageBucket: "mywebapp-78cbf.firebasestorage.app",
+        messagingSenderId: "139682457200",
+        appId: "1:139682457200:web:69724bb49f703041fd76b5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getFirestore();
+
+        async function registerUser() {
+            const name = document.getElementById("reg-name").value;
+            const email = document.getElementById("reg-email").value;
+            const password = document.getElementById("reg-password").value;
+
+            if (!name || !email || !password) return alert("Please enter all details");
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await addUserToFirestore(name, email);
+                alert("Registration Successful!");
+            } catch (error) {
+                alert("Information already exist");
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                            // Ensure user details are displayed after login
+                onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    getUserData(user);
+                } else {
+                    document.getElementById("logout-section").style.display = "none";
+                    document.getElementById("registration-section").style.display = "block";
+                    document.getElementById("login-section").style.display = "block";
+                    document.getElementById("information-section").style.display = "none"; // Hide user info
+                }
+                alert("Login Successful!");
+                });
+            } catch (error) {
+                alert("Incorrect email or password");
+            }
+        }
+
+        async function getUserData(user) {
+                const usersCollection = collection(db, "users");
+                const querySnapshot = await getDocs(usersCollection);
+
+                let userData = null;
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.email.toLowerCase() === user.email.toLowerCase()) {
+                        userData = data; // Store the matching user data
+                        document.getElementById("user-name").innerText = userData.name;
+                        document.getElementById("user-email").innerText = userData.email;
+                        document.getElementById("information-section").style.display = "block"; // Show section
+                        document.getElementById("registration-section").style.display = "none";
+                        document.getElementById("login-section").style.display = "none";
+                        document.getElementById("logout-section").style.display = "block";
+                    }
+                });
+            }
+
+        async function logoutUser() {
+            try {
+                await signOut(auth);
+                document.getElementById("registration-section").style.display = "block";
+                document.getElementById("login-section").style.display = "block";
+                document.getElementById("information-section").style.display = "none"; // Hide user info
+                alert("Logged Out!");
+            } catch (error) {
+                alert("Unable to LogOut in the moment");
+            }
+        }
+
+        async function addUserToFirestore(name, email) {
+            try {
+                await addDoc(collection(db, "users"), { name, email });
+            } catch (error) {
+                alert("Unable to connect to database");
+            }
+        }
+
+        document.getElementById("register-btn").addEventListener("click", registerUser);
+        document.getElementById("login-btn").addEventListener("click", loginUser);
+        document.getElementById("logout-btn").addEventListener("click", logoutUser);
+
+    </script>
+</body>
+</html>
+
