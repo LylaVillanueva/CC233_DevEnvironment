@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Air Quality History</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00ff88;
+      --secondary: #1a1a1a;
+      --danger: #ff3d3d;
+      --polluted: #ff3d3d;
+      --warning: #ffb13d;
+      --safe: #00ff88;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon { font-size: 20px; }
+    .back-button {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--primary);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+    .back-button:hover {
+      background: rgba(0, 255, 136, 0.2);
+    }
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin: 30px 0;
+      text-align: center;
+      position: relative;
+    }
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    .chart-container {
+      width: 100%;
+      height: 400px;
+      margin: 40px 0;
+      background: var(--secondary);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .history-container { width: 100%; margin-top: 40px; }
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th, .history-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .history-table th {
+      font-weight: 700;
+      opacity: 0.7;
+    }
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-right: 5px;
+    }
+    .status-clean { background: rgba(0, 255, 136, 0.1); color: var(--safe); }
+    .status-warning { background: rgba(255, 177, 61, 0.1); color: var(--warning); }
+    .status-danger { background: rgba(255, 61, 61, 0.1); color: var(--danger); }
+    .time-filter {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filter-button {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .filter-button:hover, .filter-button.active {
+      background: var(--primary);
+      color: #000;
+      transform: translateY(-2px);
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    @media (max-width: 768px) {
+      .chart-container { height: 300px; }
+      .history-table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="main.html" class="logo">
+        <i class="fas fa-shield-alt logo-icon"></i>
+        <span>KEEP YOU SAFE</span>
+      </a>
+      <button class="back-button" onclick="window.location.href='main.html'">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </button>
+    </div>
+
+    <h1 class="page-title" id="history-title">HISTORY DATA</h1>
+
+    <div class="time-filter">
+      <button class="filter-button active" data-range="24">24 Hours</button>
+      <button class="filter-button" data-range="168">7 Days</button>
+      <button class="filter-button" data-range="720">30 Days</button>
+      <button class="filter-button" data-range="all">All Time</button>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="history-chart"></canvas>
+    </div>
+
+    <div id="chart-announcement" class="loading" style="margin-top: 20px;"></div>
+
+    <div class="history-container">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Air Quality</th>
+            <th>Gas Level</th>
+            <th>Air Status</th>
+            <th>Gas Status</th>
+          </tr>
+        </thead>
+        <tbody id="history-data">
+          <tr>
+            <td colspan="5" class="loading">
+              <i class="fas fa-spinner fa-spin"></i> Loading data...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Scripts: Chart.js + Luxon adapter (for time axis support) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.1.0/dist/chartjs-adapter-luxon.min.js"></script>
+
+  <!-- Your app logic (make sure this is in /js/history.js) -->
+  <script src="js/history.js"></script>
+</body>
+</html>

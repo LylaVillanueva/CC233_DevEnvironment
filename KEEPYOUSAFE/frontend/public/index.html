@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Air Quality Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="main-body">
+  <div class="container">
+    <div class="header">
+      <a href="/" class="logo">
+        <i class="fas fa-shield-alt logo-icon"></i>
+        <span>KEEP YOU SAFE</span>
+      </a>
+      <div class="logo-variant">IOT</div>
+      <div class="divider">&</div>
+      <div class="time-section">
+        <div class="time-label">TIME</div>
+        <div class="time-value" id="current-time">06:50:01</div>
+      </div>
+      <div class="detect-label">
+        <i class="fas fa-satellite-dish"></i> DETECT
+      </div>
+    </div>
+
+    <h1 class="main-title">KEEP YOU SAFE</h1>
+
+    <div class="data-container">
+      <a href="/history.html?type=air" class="data-box">
+        <div class="data-label">
+          <i class="fas fa-wind data-icon"></i> AIR QUALITY
+        </div>
+        <div class="data-value" id="air-quality-value">---</div>
+        <div class="data-status" id="air-quality-status">Clean</div>
+      </a>
+
+      <a href="/history.html?type=gas" class="data-box">
+        <div class="data-label">
+          <i class="fas fa-fire data-icon"></i> GAS LEVEL
+        </div>
+        <div class="data-value" id="gas-value">---</div>
+        <div class="data-status" id="gas-status">Clean</div>
+      </a>
+
+      <a href="/history.html?type=all" class="data-box">
+        <div class="data-label">
+          <i class="fas fa-clock data-icon"></i> LAST UPDATE
+        </div>
+        <div class="data-value" id="last-update">--:--</div>
+        <div class="data-status" id="update-status">
+          <i class="fas fa-circle"></i> LIVE
+        </div>
+      </a>
+    </div>
+
+    <div class="footer">
+      Air Quality Monitoring System | © 2025 KEEP YOU SAFE
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
